@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Débulateur</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        canvas {
+            background-color: darkblue;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #tempsRestant {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        #pointsDisplay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        #playButton {
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        #colorInput {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body onkeydown="deplacer(event)">
+    <header>
+        <h1>Débulateur</h1>
+    </header>
+    <p>
+        Cliquez sur le bouton pour jouer.
+    </p>
+    <p>
+        Entrez la difficulté souhaitée :
+        <select id="difficulty">
+            <option value="0.1">Facile</option>
+            <option value="0.03">Normal</option>
+            <option value="0.01">Difficile</option>
+        </select>
+    </p>
+    <p>
+        Entrez la couleur du sous-marin souhaitée :
+        <select id="colorInput">
+            <option value="white">Blanc</option>
+            <option value="black">Noir</option>
+            <option value="red">Rouge</option>
+            <option value="green">Vert</option>
+            <option value="yellow">Jaune</option>
+            <option value="pink">Rose</option>
+            <option value="purple">Mauve</option>
+            <option value="gray">Gris</option>
+            <!-- Ajoutez d'autres options de couleur ici -->
+        </select>
+    </p>
+    <button id="playButton" onclick="play()">Jouer!</button>
+    <div id="tempsRestant">Temps restant: </div>
+    <div id="pointsDisplay">Points: 0</div>
+
+    <script>
+        let gameRunning = false;
+        let sousmarinX, sousmarinY;
+        let canvas, ctx;
+        let bulles = [];
+        let points = 0;
+        let temps_restant = 30;
+        let deplacerListener;
+
+        function play() {
+            gameRunning = true;
+            document.getElementById('playButton').style.display = 'none';
+            document.getElementById('playButton').disabled = true;
+
+            canvas = document.createElement('canvas');
+            canvas.setAttribute('height', '600');
+            canvas.setAttribute('width', '1000');
+            document.body.appendChild(canvas);
+            ctx = canvas.getContext('2d');
+
+            sousmarinX = canvas.width / 2;
+            sousmarinY = canvas.height / 2;
+
+            boucle_principale();
+        }
+        
+        function deplacer(event) {
+            const touche = event.key;
+            if (gameRunning) {
+                if (touche === 'w') {
+                    sousmarinY -= 10;
+                } else if (touche === 's') {
+                    sousmarinY += 10;
+                } else if (touche === 'a') {
+                    sousmarinX -= 10;
+                } else if (touche === 'd') {
+                    sousmarinX += 10;
+                }
+                // Actualiser le rendu du jeu après chaque déplacement
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                dessiner_sousmarin();
+                dessiner_bulles();
+            }
+        }
+
+        function bouger_bulles() {
+            for (let i = 0; i < bulles.length; i++) {
+                bulles[i].y -= bulles[i].vitesse;
+            }
+        }
+
+        function collision() {
+            for (let i = 0; i < bulles.length; i++) {
+                const bulle = bulles[i];
+                const distance = Math.sqrt((sousmarinX - bulle.x) ** 2 + (sousmarinY - bulle.y) ** 2);
+                if (distance < 15 + bulle.r) {
+                    points += (bulle.r + bulle.vitesse);
+                    bulles.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        function creer_bulle() {
+            const x = Math.random() * canvas.width;
+            const y = canvas.height + Math.random() * 100; // Commence en bas et remonte
+            const r = Math.floor(Math.random() * (30 - 10 + 1)) + 10;
+            const vitesse = Math.floor(Math.random() * 10) + 1;
+            bulles.push({ x, y, r, vitesse });
+        }
+
+        function dessiner_sousmarin() {
+            // Coordonnées des coins du triangle par rapport à la position du sous-marin
+            const triangleX = sousmarinX - 15; // Coin supérieur gauche du triangle
+            const triangleY = sousmarinY + 15; // Coin inférieur gauche du triangle
+
+            ctx.beginPath();
+            ctx.moveTo(sousmarinX, sousmarinY - 15); // Sommet du triangle (au-dessus du sous-marin)
+            ctx.lineTo(triangleX, triangleY); // Coin inférieur gauche du triangle
+            ctx.lineTo(triangleX - 15, triangleY - 15); // Coin supérieur gauche du triangle
+            ctx.closePath(); // Fermer la forme
+            ctx.fillStyle = document.getElementById('colorInput').value;
+            ctx.fill();
+        }
+
+        function dessiner_bulles() {
+            for (let i = 0; i < bulles.length; i++) {
+                const bulle = bulles[i];
+                ctx.beginPath();
+                ctx.arc(bulle.x, bulle.y, bulle.r, 0, Math.PI * 2);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+            }
+        }
+
+        function boucle_principale() {
+            if (gameRunning && temps_restant > 0) {
+                if (Math.random() < parseFloat(document.getElementById('difficulty').value)) {
+                    creer_bulle();
+                }
+                bouger_bulles();
+                collision();
+                temps_restant -= 0.1;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                dessiner_sousmarin();
+                dessiner_bulles();
+                document.getElementById('tempsRestant').innerText = 'Temps restant: ' + Math.floor(temps_restant) + ' secondes';
+                document.getElementById('pointsDisplay').innerText = 'Points: ' + points;
+                setTimeout(boucle_principale, 100);
+            } else {
+                fin_partie();
+            }
+        }
+
+        function fin_partie() {
+            alert("Temps écoulé! Points obtenus: " + points);
+            reinitialiser_jeu();
+        }
+
+        function reinitialiser_jeu() {
+            gameRunning = false;
+            document.getElementById('playButton').style.display = 'inline-block';
+            document.getElementById('playButton').disabled = false;
+            if (canvas) {
+                canvas.parentNode.removeChild(canvas);
+                canvas = null;
+            }
+            bulles = [];
+            points = 0;
+            temps_restant = 30;
+        }
+    </script>
+</body>
+</html>
