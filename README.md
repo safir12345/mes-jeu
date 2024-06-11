@@ -26,12 +26,10 @@
             </ul>
             <!-- Ajoutez d'autres jeux finis ici si nécessaire -->
         </ul>
-    </p>
-    <p>
-        en cours:
+            en cours:
         <ul>
             <il>
-                Lunar lander 
+                
             </il>
         </ul>
     </p>
