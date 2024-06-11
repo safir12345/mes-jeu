@@ -9,8 +9,7 @@
     </header>
     <p>
         Fini:
-        <ul>
-            <ul>
+            <ol>
                 <li>
                     <h1>Débulateur</h1>
                     <a href="file:///C:/Users/u6052575/algoritme/debulteur.HTML">
@@ -23,15 +22,14 @@
                         <img src="file:///C:/Users/u6052575/Pictures/Pong.png" width="200" height="92" alt="Une_photo_du_jeu">
                     </a>
                 </li>
-            </ul>
+            </ol>
             <!-- Ajoutez d'autres jeux finis ici si nécessaire -->
-        </ul>
             en cours:
-        <ul>
+        <ol>
             <il>
-                
+                .
             </il>
-        </ul>
+        </ol>
     </p>
 </body>
 </html>
