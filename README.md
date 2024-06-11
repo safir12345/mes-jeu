@@ -24,12 +24,6 @@
                 </li>
             </ol>
             <!-- Ajoutez d'autres jeux finis ici si nécessaire -->
-            en cours:
-        <ol>
-            <il>
-                .
-            </il>
-        </ol>
     </p>
 </body>
 </html>
